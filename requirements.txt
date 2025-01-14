@@ -1,15 +1,15 @@
-<<<<<<< HEAD
-numpy
-pandas
-scikit-learn
-tensorflow
-prefect
-python-dotenv
-matplotlib
-seaborn
-flask
-joblib
-=======
+# <<<<<<< HEAD
+# numpy
+# pandas
+# scikit-learn
+# tensorflow
+# prefect
+# python-dotenv
+# matplotlib
+# seaborn
+# flask
+# joblib
+# =======
 # requirements.txt
 setuptools==70.0.0
 numpy==1.23.5
