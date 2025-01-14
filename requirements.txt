@@ -1,24 +1,12 @@
-# requirements.txt
-setuptools==70.0.0
-numpy==1.23.5
-pandas==1.5.3
-scikit-learn==1.5.0
-tensorflow==2.12.1
-keras==3.8.0
-Flask==2.3.2
-gunicorn==22.0.0
-bentoml==1.2.5
-pytest==7.4.0
-pytest-cov==4.1.0
-black==24.3.0
-flake8==6.0.0
-docker==6.1.3
-matplotlib==3.7.2
-seaborn==0.12.2
-jupyter==1.0.0
-python-dotenv==1.0.0
 
-# Testing dependencies
-pytest==7.4.0
-pytest-cov==4.1.0
-requests==2.31.0
+numpy
+pandas
+scikit-learn
+tensorflow
+prefect
+python-dotenv
+matplotlib
+seaborn
+flask
+joblib
+=======
