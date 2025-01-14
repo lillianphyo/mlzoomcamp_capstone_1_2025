@@ -10,7 +10,7 @@ on:
 
 jobs:
   run-prefect-pipeline:
-    runs-on: ubuntu-22.04  # Use Ubuntu 22.04 (stable LTS version)
+    runs-on: ubuntu-22.04
     environment: dev
     steps:
       - name: Checkout repository
@@ -19,11 +19,17 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"  # Use a valid Python version
+          python-version: "3.10"
 
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+          pip install -e .  # Install the ml_pipeline module in editable mode
+
+      - name: Debug Python path
+        run: |
+          python -c "import sys; print(sys.path)"
+          python -c "import ml_pipeline; print(ml_pipeline.__file__)"
 
       - name: Run Prefect pipeline
         run: |
