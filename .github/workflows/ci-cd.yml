@@ -1,13 +1,15 @@
-# .github/workflows/ci-cd.yml
 name: CI/CD
 
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -21,12 +23,9 @@ jobs:
         pip install -r requirements.txt
     - name: Run tests
       run: |
-        python -m pytest
-    - name: Build Docker image
-      run: docker build -t ec2-spot-forecast .
-    - name: Log in to Docker Hub
-      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-    - name: Push Docker image
-      run: |
-        docker tag ec2-spot-forecast ${{ secrets.DOCKER_USERNAME }}/ec2-spot-forecast:latest
-        docker push ${{ secrets.DOCKER_USERNAME }}/ec2-spot-forecast:latest
+        pytest tests/ --cov=utils --cov=api --cov=services --cov-report=html
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage-report
+        path: htmlcov
