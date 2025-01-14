@@ -3,10 +3,10 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - master
+      - master  # Trigger on push to master
   pull_request:
     branches:
-      - master
+      - master  # Trigger on pull request to master
 
 jobs:
   run-prefect-pipeline:
