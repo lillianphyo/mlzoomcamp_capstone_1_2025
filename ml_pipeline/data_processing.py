@@ -1,27 +1,3 @@
-# import pandas as pd
-# import logging
-# from ml_pipeline.config import Config
-
-# # Set up logging
-# logging.basicConfig(level=Config.LOG_LEVEL, filename=Config.LOG_FILE, format="%(asctime)s - %(levelname)s - %(message)s")
-# logger = logging.getLogger(__name__)
-
-# def load_data():
-#     """Load raw data."""
-#     logger.info("Loading raw data from %s", Config.RAW_DATA_PATH)
-#     df = pd.read_csv(Config.RAW_DATA_PATH)
-#     return df
-
-# def preprocess_data(df):
-#     """Preprocess the data."""
-#     logger.info("Preprocessing data")
-#     df = df.dropna()  # Example: Drop missing values
-#     df.to_csv(Config.PROCESSED_DATA_PATH, index=False)
-#     logger.info(f"Processed data saved to {Config.PROCESSED_DATA_PATH}")
-#     return df
-
-
-
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler

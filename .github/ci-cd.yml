@@ -1,0 +1,78 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  run-prefect-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r ml_pipeline/requirements.txt
+
+      - name: Run Prefect pipeline
+        run: |
+          prefect cloud login --key ${{ secrets.PREFECT_API_KEY }}
+          python scripts/prefect_flow.py
+
+  build-and-push-docker-image:
+    needs: run-prefect-pipeline
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/flask-app:latest
+
+  deploy-to-saturncloud:
+    needs: build-and-push-docker-image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Deploy to SaturnCloud
+        run: |
+          # Install SaturnCloud CLI
+          pip install saturncloud
+
+          # Log in to SaturnCloud
+          saturncloud login --token ${{ secrets.SATURNCLOUD_API_KEY }}
+
+          # Deploy the Flask app with resource configuration
+          saturncloud deploy \
+            --name flask-app \
+            --image ${{ secrets.DOCKER_HUB_USERNAME }}/flask-app:latest \
+            --port 5000 \
+            --env FLASK_APP=app.py \
+            --env FLASK_ENV=production \
+            --cpu 4 \
+            --memory 16 \
+            --gpu 1 \
+            --storage 10
