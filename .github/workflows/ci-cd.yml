@@ -27,7 +27,7 @@ jobs:
 
       - name: Run Prefect pipeline
         run: |
-          prefect cloud login --key ${{ secrets.PREFECT_API_KEY }}
+          prefect cloud login --key ${{ secrets.PREFECT_API_KEY }} --workspace ${{ secrets.PREFECT_WORKSPACE }}
           python scripts/prefect_flow.py
 
   build-and-push-docker-image:
