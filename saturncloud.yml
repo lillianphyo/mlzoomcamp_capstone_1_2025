@@ -1,0 +1,18 @@
+# saturncloud.yaml
+name: ec2-spot-forecast
+image: your-docker-image:latest
+env:
+  - name: DEBUG
+    value: "False"
+  - name: MODEL_PATH
+    value: "artifacts/models/lstm_model.h5"
+  - name: SCALER_PATH
+    value: "artifacts/models/scaler.pkl"
+  - name: FLASK_HOST
+    value: "0.0.0.0"
+  - name: FLASK_PORT
+    value: "5000"
+  - name: SATURN_CLOUD_API_KEY
+    value: "your-api-key"
+  - name: SATURN_CLOUD_PROJECT_ID
+    value: "your-project-id"
