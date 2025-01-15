@@ -33,29 +33,43 @@ jobs:
         run: |
           python scripts/prefect_flow.py
 
-  deploy-to-koyeb:
-    needs: run-prefect-pipeline
-    runs-on: ubuntu-22.04
+  build-and-push-docker:
+    runs-on: ubuntu-latest
     environment: dev
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Deploy to Koyeb using Dockerized CLI
-        env:
-          KOYEB_API_KEY: ${{ secrets.KOYEB_API_KEY }}
+      - name: Log in to Docker Hub
         run: |
-          docker run --rm \
-            -e KOYEB_API_KEY=${{ secrets.KOYEB_API_KEY }} \
-            koyeb/cli:latest \
-            auth login --token $KOYEB_API_KEY
+          echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
-          docker run --rm \
-            -e KOYEB_API_KEY=${{ secrets.KOYEB_API_KEY }} \
-            koyeb/cli:latest \
-            service deploy flask-app \
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/flask-app:latest .
+
+      - name: Push Docker image to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/flask-app:latest
+
+  deploy-to-koyeb:
+    needs: build-and-push-docker
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Use Koyeb GitHub Action
+        uses: ./.github/actions/koyeb-action  # Path to your Koyeb GitHub Action
+        with:
+          api_token: ${{ secrets.KOYEB_API_KEY }}
+          github_token: ${{ github.token }}
+
+      - name: Deploy to Koyeb
+        run: |
+          koyeb deploy flask-app \
             --image ${{ secrets.DOCKER_HUB_USERNAME }}/flask-app:latest \
-            --port-mapping 5000:http \
-            --regions fra \
             --env FLASK_APP=app.py \
-            --env FLASK_ENV=production
+            --env FLASK_ENV=production \
+            --region fra
