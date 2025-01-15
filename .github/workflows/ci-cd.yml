@@ -28,8 +28,6 @@ jobs:
 
       - name: Run Prefect pipeline
         env:
-          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-          DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
           PREFECT_API_KEY: ${{ secrets.PREFECT_API_KEY }}
           PREFECT_WORKSPACE: ${{ secrets.PREFECT_WORKSPACE }}
         run: |
@@ -37,8 +35,8 @@ jobs:
 
   deploy-to-koyeb:
     needs: run-prefect-pipeline
-    environment: dev
     runs-on: ubuntu-22.04
+    environment: dev
     steps:
       - name: Install Koyeb CLI
         run: |
