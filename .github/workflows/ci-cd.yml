@@ -38,21 +38,22 @@ jobs:
     runs-on: ubuntu-22.04
     environment: dev
     steps:
-      - name: Install Koyeb CLI
-        run: |
-          curl -fsSL https://raw.githubusercontent.com/koyeb/koyeb-cli/master/install.sh | sh
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Log in to Koyeb
+      - name: Deploy to Koyeb using Dockerized CLI
         env:
           KOYEB_API_KEY: ${{ secrets.KOYEB_API_KEY }}
         run: |
-          koyeb auth login --token $KOYEB_API_KEY
+          docker run --rm \
+            -e KOYEB_API_KEY=${{ secrets.KOYEB_API_KEY }} \
+            koyeb/cli:latest \
+            auth login --token $KOYEB_API_KEY
 
-      - name: Deploy to Koyeb
-        env:
-          KOYEB_API_KEY: ${{ secrets.KOYEB_API_KEY }}
-        run: |
-          koyeb service deploy flask-app \
+          docker run --rm \
+            -e KOYEB_API_KEY=${{ secrets.KOYEB_API_KEY }} \
+            koyeb/cli:latest \
+            service deploy flask-app \
             --image ${{ secrets.DOCKER_HUB_USERNAME }}/flask-app:latest \
             --port-mapping 5000:http \
             --regions fra \
