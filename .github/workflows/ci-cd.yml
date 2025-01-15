@@ -37,6 +37,7 @@ jobs:
 
   deploy-to-koyeb:
     needs: run-prefect-pipeline
+    environment: dev
     runs-on: ubuntu-22.04
     steps:
       - name: Install Koyeb CLI
