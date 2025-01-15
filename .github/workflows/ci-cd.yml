@@ -9,54 +9,44 @@ on:
       - master
 
 jobs:
-  run-prefect-pipeline:
+  build-and-push-docker:
     runs-on: ubuntu-22.04
-    environment: dev
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
         with:
-          python-version: "3.10"
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      - name: Install dependencies
+      - name: Build and push Docker image
         run: |
-          pip install -r requirements.txt
-          pip install -e .  # Install the ml_pipeline module in editable mode
-
-      - name: Run Prefect pipeline
-        env:
-          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-          DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
-          PREFECT_API_KEY: ${{ secrets.PREFECT_API_KEY }}
-          PREFECT_WORKSPACE: ${{ secrets.PREFECT_WORKSPACE }}
-        run: |
-          python scripts/prefect_flow.py
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/flask-app:latest .
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/flask-app:latest
 
   deploy-to-koyeb:
-    needs: run-prefect-pipeline
+    needs: build-and-push-docker
     runs-on: ubuntu-22.04
-    environment: dev
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
       - name: Install Koyeb CLI
         run: |
           curl -fsSL https://raw.githubusercontent.com/koyeb/koyeb-cli/master/install.sh | sh
 
       - name: Log in to Koyeb
+        env:
+          KOYEB_API_KEY: ${{ secrets.KOYEB_API_KEY }}
         run: |
-          koyeb auth login --token ${{ secrets.KOYEB_API_KEY }}
+          koyeb auth login --token $KOYEB_API_KEY
 
       - name: Deploy to Koyeb
+        env:
+          KOYEB_API_KEY: ${{ secrets.KOYEB_API_KEY }}
         run: |
-          koyeb service create \
-            --name flask-app \
+          koyeb service deploy flask-app \
             --image ${{ secrets.DOCKER_HUB_USERNAME }}/flask-app:latest \
-            --ports 5000:http \
+            --port-mapping 5000:http \
+            --regions fra \
             --env FLASK_APP=app.py \
-            --env FLASK_ENV=production \
-            --regions fra
+            --env FLASK_ENV=production
