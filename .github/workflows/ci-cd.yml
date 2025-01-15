@@ -34,6 +34,7 @@ jobs:
           python scripts/prefect_flow.py
 
   build-and-push-docker:
+    needs: run-prefect-pipeline
     runs-on: ubuntu-latest
     environment: dev
     steps:
