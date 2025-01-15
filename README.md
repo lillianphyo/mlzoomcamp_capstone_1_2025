@@ -1,205 +1,213 @@
-# EC2 Spot Instance Price Forecasting
 
-This project provides a machine learning system for forecasting Amazon EC2 Spot Instance prices. The system uses an LSTM (Long Short-Term Memory) model to predict future spot prices based on historical data. The project is modularized, containerized with Docker, and includes a Flask API for serving predictions. It also supports deployment on Saturn Cloud and CI/CD integration with GitHub Actions.
+# **AWS EC2 Spot Price Forecasting**
 
----
+## **Overview**
 
-## Table of Contents
+This project focuses on forecasting **AWS EC2 Spot Instance prices** using machine learning techniques. Spot Instances allow you to use spare AWS EC2 capacity at a significantly reduced cost, but their prices fluctuate based on supply and demand. Accurately predicting these prices can help optimize costs and improve resource allocation.
 
-1. [Business Domain Knowledge](#business-domain-knowledge)
-2. [Project Structure](#project-structure)
-3. [Installation](#installation)
-4. [Usage](#usage)
-5. [Deployment](#deployment)
-   - [Docker](#docker)
-   - [BentoML](#bentoml)
-   - [Saturn Cloud](#saturn-cloud)
-6. [Testing](#testing)
-7. [Contributing](#contributing)
-8. [License](#license)
+The project includes:
+
+- **Data Collection**: Fetching historical EC2 Spot Price data.
+- **Data Preprocessing**: Cleaning and preparing the data for modeling.
+- **Exploratory Data Analysis (EDA)**: Visualizing trends and patterns in the data.
+- **Model Training**: Building and training machine learning models to forecast spot prices.
+- **Deployment**: Deploying the trained model as a Flask app using Docker and Koyeb.
 
 ---
 
-## Business Domain Knowledge
+## **Features**
 
-### What are EC2 Spot Instances?
-
-Amazon EC2 Spot Instances allow you to use spare EC2 capacity at a significantly reduced cost compared to On-Demand Instances. However, the prices for Spot Instances fluctuate based on supply and demand, and AWS can terminate instances with a two-minute warning when capacity is no longer available.
-
-### Why Forecast Spot Prices?
-
-Forecasting EC2 Spot Instance prices helps businesses:
-
-- **Optimize Costs**: Predict low-price periods to launch workloads cost-effectively.
-- **Plan Workloads**: Schedule non-critical workloads during low-price periods.
-- **Reduce Risk**: Avoid unexpected terminations by anticipating price spikes.
-
-### Key Challenges
-
-- **Price Volatility**: Spot prices can change rapidly.
-- **Data Quality**: Historical price data may contain gaps or anomalies.
-- **Model Accuracy**: Accurate forecasting requires handling time-series data effectively.
+- **Data Pipeline**: Automated data collection and preprocessing.
+- **Machine Learning Models**: Includes models like LSTM, ARIMA, and XGBoost for forecasting.
+- **API Endpoint**: A Flask app to serve predictions via an API.
+- **CI/CD Pipeline**: Automated deployment using GitHub Actions and Koyeb.
 
 ---
 
-## Project Structure
+## **Project Structure**
 
 ```
-ec2-spot-forecast/
-├── api/                  # Flask API for serving predictions
-├── artifacts/            # Data and trained models
-│   ├── data/             # Historical EC2 spot price data
-│   └── models/           # Trained LSTM models
-├── config/               # Configuration files and environment variables
-├── services/             # BentoML service for model serving
-├── tests/                # Unit tests for the project
-├── utils/                # Utility functions (data preprocessing, model training)
-├── requirements.txt      # Python dependencies
-├── Dockerfile            # Docker configuration
-├── README.md             # Project documentation
-└── .github/workflows/    # GitHub Actions CI/CD workflows
+.
+├── app/
+│   ├── app.py                # Flask app for serving predictions
+│   └── requirements.txt      # Python dependencies for the Flask app
+├── data/
+│   ├── processed/            # Processed data files
+│   └── raw/                  # Raw data files
+├── ml_pipeline/
+│   ├── config.py             # Configuration settings
+│   ├── data_processing.py    # Data preprocessing scripts
+│   ├── eda.py                # Exploratory data analysis scripts
+│   ├── model_training.py     # Model training scripts
+│   ├── model_evaluation.py   # Model evaluation scripts
+│   └── utils.py              # Utility functions
+├── models/
+│   └── lstm_model/           # Trained LSTM model files
+├── notebooks/
+│   ├── eda.ipynb             # Jupyter notebook for EDA
+│   └── model_training.ipynb  # Jupyter notebook for model training
+├── scripts/
+│   ├── prefect_flow.py       # Prefect pipeline for automation
+│   └── run_pipeline.py       # Script to run the entire pipeline
+├── Dockerfile                # Dockerfile for containerizing the Flask app
+├── requirements.txt          # Python dependencies for the project
+├── README.md                 # Project documentation
+└── .github/workflows/        # GitHub Actions workflows for CI/CD
 ```
 
 ---
 
-## Installation
+## **Setup Instructions**
 
-1. **Clone the Repository**:
+### **1. Prerequisites**
 
-   ```bash
-   git clone https://github.com/your-username/ec2-spot-forecast.git
-   cd ec2-spot-forecast
-   ```
-2. **Set Up a Virtual Environment**:
+- **Python 3.10**: Install Python 3.10 or higher.
+- **Docker**: Install Docker to containerize the Flask app.
+- **AWS CLI**: Install the AWS CLI to fetch EC2 Spot Price data.
+- **Koyeb Account**: Create a Koyeb account for deployment.
 
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # On Windows, use `.venv\Scripts\activate`
-   ```
-3. **Install Dependencies**:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
----
-
-## Usage
-
-### 1. **Data Preprocessing**
-
-Run the data preprocessing script to prepare the data for training:
+### **2. Clone the Repository**
 
 ```bash
-python -m utils.data_preprocessing
+git clone https://github.com/your-username/aws-ec2-spot-price-forecasting.git
+cd aws-ec2-spot-price-forecasting
 ```
 
-### 2. **Model Training**
-
-Train the LSTM model using the preprocessed data:
+### **3. Install Dependencies**
 
 ```bash
-python -m utils.model_training
+pip install -r requirements.txt
 ```
 
-### 3. **Run the Flask API**
+### **4. Fetch EC2 Spot Price Data**
 
-Start the Flask API to serve predictions:
+Run the following script to fetch historical EC2 Spot Price data:
 
 ```bash
-python api/app.py
+python scripts/fetch_spot_prices.py
 ```
 
-### 4. **Make Predictions**
+### **5. Run the Data Pipeline**
 
-Send a POST request to the `/predict` endpoint with historical price data:
+Execute the Prefect pipeline to preprocess data, train models, and evaluate performance:
 
 ```bash
-curl -X POST -H "Content-Type: application/json" -d '{"data": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]}' http://localhost:5000/predict
+python scripts/run_pipeline.py
 ```
 
 ---
 
-## Deployment
+## **Usage**
 
-### Docker
+### **1. Train Models**
 
-1. **Build the Docker Image**:
-
-   ```bash
-   docker build -t ec2-spot-forecast .
-   ```
-2. **Run the Docker Container**:
-
-   ```bash
-   docker run -p 5000:5000 ec2-spot-forecast
-   ```
-
-### BentoML
-
-1. **Package the Model**:
-
-   ```bash
-   bentoml build
-   ```
-2. **Serve the Model**:
-
-   ```bash
-   bentoml serve EC2SpotForecastService:latest
-   ```
-
-### Saturn Cloud
-
-1. **Push the Docker Image to Docker Hub**:
-
-   ```bash
-   docker tag ec2-spot-forecast your-dockerhub-username/ec2-spot-forecast:latest
-   docker push your-dockerhub-username/ec2-spot-forecast:latest
-   ```
-2. **Deploy on Saturn Cloud**:
-
-   - Create a new deployment on Saturn Cloud.
-   - Use the Docker image from Docker Hub.
-   - Set environment variables (e.g., `MODEL_PATH`, `SCALER_PATH`).
-
----
-
-## Testing
-
-Run unit tests to ensure the project works as expected:
+To train the LSTM model:
 
 ```bash
-pytest tests/ --cov=utils --cov=api --cov=services --cov-report=html
+python ml_pipeline/model_training.py
 ```
 
-View the coverage report in the `htmlcov` folder.
+### **2. Serve Predictions**
+
+Start the Flask app to serve predictions:
+
+```bash
+python app/app.py
+```
+
+The API will be available at `http://localhost:5000`.
+
+#### **API Endpoints**
+
+- **GET `/predict`**: Get spot price forecasts for a specific instance type.
+  - **Parameters**:
+    - `instance_type`: The EC2 instance type (e.g., `m5.large`).
+    - `region`: The AWS region (e.g., `us-east-1`).
+  - **Example**:
+    ```bash
+    curl "http://localhost:5000/predict?instance_type=m5.large&region=us-east-1"
+    ```
 
 ---
 
-## Contributing
+## **Deployment**
+
+### **1. Build Docker Image**
+
+Build the Docker image for the Flask app:
+
+```bash
+docker build -t your-dockerhub-username/flask-app:latest .
+```
+
+### **2. Push Docker Image to Docker Hub**
+
+Push the Docker image to Docker Hub:
+
+```bash
+docker push your-dockerhub-username/flask-app:latest
+```
+
+### **3. Deploy to Koyeb**
+
+Deploy the Docker image to Koyeb using the Koyeb CLI:
+
+```bash
+koyeb service create \
+  --name flask-app \
+  --image your-dockerhub-username/flask-app:latest \
+  --ports 5000:http \
+  --env FLASK_APP=app.py \
+  --env FLASK_ENV=production \
+  --regions fra
+```
+
+---
+
+## **CI/CD Pipeline**
+
+The project includes a GitHub Actions workflow to automate the deployment process. The workflow:
+
+1. Builds and pushes the Docker image to Docker Hub.
+2. Deploys the Docker image to Koyeb.
+
+To trigger the workflow, push changes to the `master` branch.
+
+---
+
+## **Contributing**
 
 Contributions are welcome! Please follow these steps:
 
 1. Fork the repository.
-2. Create a new branch (`git checkout -b feature-branch`).
-3. Commit your changes (`git commit -m "Add new feature"`).
-4. Push to the branch (`git push origin feature-branch`).
+2. Create a new branch (`git checkout -b feature/your-feature`).
+3. Commit your changes (`git commit -m 'Add some feature'`).
+4. Push to the branch (`git push origin feature/your-feature`).
 5. Open a pull request.
 
 ---
 
-## License
+## **License**
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
 
-## Acknowledgments
+## **Acknowledgments**
 
-- Amazon Web Services (AWS) for providing EC2 Spot Instance data.
-- TensorFlow and Keras for the LSTM model implementation.
-- Flask and BentoML for model serving.
+- **AWS**: For providing EC2 Spot Price data.
+- **Koyeb**: For simplifying deployment with their platform.
+- **Prefect**: For enabling workflow automation.
 
 ---
 
-This `README.md` provides a comprehensive guide for using, deploying, and understanding the EC2 Spot Instance price forecasting project. Let me know if you need further assistance!
+## **Contact**
+
+For questions or feedback, please contact:
+
+- **Your Name**: khinpyaephyosan@gmail.com
+- **GitHub**: lillianphyo
+
+---
+
+This README provides a comprehensive guide to using and deploying your AWS EC2 Spot Price Forecasting project. 🚀
