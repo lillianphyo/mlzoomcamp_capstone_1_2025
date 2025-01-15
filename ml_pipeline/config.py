@@ -26,3 +26,7 @@ class Config:
     # Flask app
     FLASK_HOST = os.getenv("FLASK_HOST", "0.0.0.0")
     FLASK_PORT = int(os.getenv("FLASK_PORT", 5000))
+
+    # Docker Hub
+    DOCKER_HUB_USERNAME = os.getenv("DOCKER_HUB_USERNAME")
+    DOCKER_HUB_TOKEN = os.getenv("DOCKER_HUB_TOKEN")

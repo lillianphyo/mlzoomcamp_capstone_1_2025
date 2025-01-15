@@ -27,37 +27,16 @@ jobs:
           pip install -e .  # Install the ml_pipeline module in editable mode
 
       - name: Run Prefect pipeline
+        env:
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
+          PREFECT_API_KEY: ${{ secrets.PREFECT_API_KEY }}
+          PREFECT_WORKSPACE: ${{ secrets.PREFECT_WORKSPACE }}
         run: |
-          prefect cloud login --key ${{ secrets.PREFECT_API_KEY }} --workspace ${{ secrets.PREFECT_WORKSPACE }}
           python scripts/prefect_flow.py
 
-  build-and-push-docker-image:
-    needs: run-prefect-pipeline
-    runs-on: ubuntu-22.04
-    environment: dev
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Debug build context
-        run: |
-          ls -R  # List all files and directories recursively
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_TOKEN }}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/flask-app:latest
-
   deploy-to-koyeb:
-    needs: build-and-push-docker-image
+    needs: run-prefect-pipeline
     runs-on: ubuntu-22.04
     environment: dev
     steps:

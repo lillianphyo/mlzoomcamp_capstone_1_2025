@@ -29,6 +29,36 @@ def evaluate_model_task(model, X_val, y_val, scaler):
 def perform_eda_task(df):
     perform_eda(df)
 
+@task
+def build_and_push_docker_image_task():
+    """
+    Task to build and push the Docker image.
+    """
+    try:
+        # Log in to Docker Hub
+        subprocess.run(
+            ["docker", "login", "-u", Config.DOCKER_HUB_USERNAME, "-p", Config.DOCKER_HUB_TOKEN],
+            check=True,
+        )
+
+        # Build the Docker image
+        subprocess.run(
+            ["docker", "build", "-t", f"{Config.DOCKER_HUB_USERNAME}/flask-app:latest", "."],
+            check=True,
+        )
+
+        # Push the Docker image
+        subprocess.run(
+            ["docker", "push", f"{Config.DOCKER_HUB_USERNAME}/flask-app:latest"],
+            check=True,
+        )
+
+        print("Docker image built and pushed successfully!")
+    except subprocess.CalledProcessError as e:
+        print(f"Error building or pushing Docker image: {e}")
+        raise
+
+
 # Define the flow
 @flow(name="ML Pipeline Flow")
 def ml_pipeline_flow():
@@ -49,6 +79,9 @@ def ml_pipeline_flow():
     
     # Log evaluation metrics
     print("Evaluation Metrics:", evaluation_metrics)
+
+    # Build and push Docker image
+    build_and_push_docker_image_task()
 
 # Run the flow
 if __name__ == "__main__":
