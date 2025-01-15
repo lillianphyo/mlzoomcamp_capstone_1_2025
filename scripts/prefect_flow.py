@@ -1,5 +1,7 @@
 from prefect import flow, task
+import requests
 import pandas as pd
+import subprocess
 from ml_pipeline.config import Config
 from ml_pipeline.data_processing import load_data, preprocess_data
 from ml_pipeline.model_training import train_model

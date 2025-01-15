@@ -1,90 +1,3 @@
-# name: CI/CD Pipeline
-
-# on:
-#   push:
-#     branches:
-#       - master  # Trigger on push to master
-#   pull_request:
-#     branches:
-#       - master  # Trigger on pull request to master
-
-# jobs:
-#   run-prefect-pipeline:
-#     runs-on: ubuntu-22.04
-#     environment: dev
-#     steps:
-#       - name: Checkout repository
-#         uses: actions/checkout@v3
-
-#       - name: Set up Python
-#         uses: actions/setup-python@v4
-#         with:
-#           python-version: "3.10"
-
-#       - name: Install dependencies
-#         run: |
-#           pip install -r requirements.txt
-#           pip install -e .  # Install the ml_pipeline module in editable mode
-
-#       - name: Debug Python path
-#         run: |
-#           python -c "import sys; print(sys.path)"
-#           python -c "import ml_pipeline; print(ml_pipeline.__file__)"
-
-#       - name: Run Prefect pipeline
-#         run: |
-#           prefect cloud login --key ${{ secrets.PREFECT_API_KEY }} --workspace ${{ secrets.PREFECT_WORKSPACE }}
-#           python scripts/prefect_flow.py
-
-#   build-and-push-docker-image:
-#     needs: run-prefect-pipeline
-#     runs-on: ubuntu-22.04  # Use Ubuntu 22.04 (stable LTS version)
-#     environment: dev
-#     steps:
-#       - name: Checkout repository
-#         uses: actions/checkout@v3
-
-#       - name: Log in to Docker Hub
-#         uses: docker/login-action@v2
-#         with:
-#           username: ${{ secrets.DOCKER_HUB_USERNAME }}
-#           password: ${{ secrets.DOCKER_HUB_TOKEN }}
-
-#       - name: Build and push Docker image
-#         uses: docker/build-push-action@v4
-#         with:
-#           context: .
-#           push: true
-#           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/flask-app:latest
-
-#   deploy-to-saturncloud:
-#     needs: build-and-push-docker-image
-#     runs-on: ubuntu-22.04  # Use Ubuntu 22.04 (stable LTS version)
-#     environment: dev
-#     steps:
-#       - name: Checkout repository
-#         uses: actions/checkout@v3
-
-#       - name: Deploy to SaturnCloud
-#         run: |
-#           # Install SaturnCloud CLI
-#           pip install saturncloud
-
-#           # Log in to SaturnCloud
-#           saturncloud login --token ${{ secrets.SATURNCLOUD_API_KEY }}
-
-#           # Deploy the Flask app with resource configuration
-#           saturncloud deploy \
-#             --name flask-app \
-#             --image ${{ secrets.DOCKER_HUB_USERNAME }}/flask-app:latest \
-#             --port 5000 \
-#             --env FLASK_APP=app.py \
-#             --env FLASK_ENV=production \
-#             --cpu 4 \
-#             --memory 16 \
-#             --gpu 1 \
-#             --storage 10
-
 name: CI/CD Pipeline
 
 on:
@@ -143,7 +56,7 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/flask-app:latest
 
-  deploy-to-saturncloud:
+  deploy-to-koyeb:
     needs: build-and-push-docker-image
     runs-on: ubuntu-22.04
     environment: dev
@@ -151,17 +64,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Deploy to SaturnCloud
+      - name: Install Koyeb CLI
         run: |
-          pip install saturncloud
-          saturncloud login --token ${{ secrets.SATURNCLOUD_API_KEY }}
-          saturncloud deploy \
+          curl -fsSL https://cli.koyeb.com/install.sh | sh
+
+      - name: Log in to Koyeb
+        run: |
+          koyeb auth login --token ${{ secrets.KOYEB_API_KEY }}
+
+      - name: Deploy to Koyeb
+        run: |
+          koyeb service create \
             --name flask-app \
             --image ${{ secrets.DOCKER_HUB_USERNAME }}/flask-app:latest \
-            --port 5000 \
+            --ports 5000:http \
             --env FLASK_APP=app.py \
             --env FLASK_ENV=production \
-            --cpu 4 \
-            --memory 16 \
-            --gpu 1 \
-            --storage 10
+            --regions fra
