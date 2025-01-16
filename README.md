@@ -110,7 +110,7 @@ The API will be available at `http://localhost:5000`.
 
 #### **API Endpoints**
 
-- **GET `/predict`**: Get spot price forecasts for a specific instance type.
+- **POST `/predict`**: Get spot price forecasts for a specific instance type.
   - **Parameters**:
     - `instance_type`: The EC2 instance type (e.g., `m5.large`).
     - `region`: The AWS region (e.g., `us-east-1`).
