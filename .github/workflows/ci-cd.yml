@@ -71,16 +71,16 @@ jobs:
         env:
           KOYEB_API_KEY: ${{ secrets.KOYEB_API_KEY }}
         run: |
-          koyeb app create ec2p || echo "Application 'flask-app' already exists."
+          koyeb app create ec2p-app || echo "Application 'flask-app' already exists."
 
       - name: Deploy to Koyeb
         env:
           KOYEB_API_KEY: ${{ secrets.KOYEB_API_KEY }}
         run: |
           koyeb service create ec2p-service \
-            --app ec2p \
-            --docker ${{ secrets.DOCKER_HUB_USERNAME }}/ec2p:latest \
-            --port 5000:tcp \
+            --app ec2p-app \
+            --docker ${{ secrets.DOCKER_HUB_USERNAME }}/flask-app:latest \
+            --port 5000:http \
             --route /:5000 \
             --instance-type free \
             --env FLASK_APP=app.py \
