@@ -1,4 +1,3 @@
-
 # **AWS EC2 Spot Price Forecasting**
 
 ## **Overview**
@@ -69,8 +68,8 @@ The project includes:
 ### **2. Clone the Repository**
 
 ```bash
-git clone https://github.com/your-username/aws-ec2-spot-price-forecasting.git
-cd aws-ec2-spot-price-forecasting
+git clone https://github.com/lillianphyo/mlzoomcamp_capstone_1_2025.git
+cd mlzoomcamp_capstone_1_2025
 ```
 
 ### **3. Install Dependencies**
@@ -79,12 +78,12 @@ cd aws-ec2-spot-price-forecasting
 pip install -r requirements.txt
 ```
 
-### **4. Fetch EC2 Spot Price Data**
+### **4. EC2 Spot Price Data**
 
-Run the following script to fetch historical EC2 Spot Price data:
+The script to fetch historical EC2 Spot Price data was provided in notebook as this part not exported.:
 
 ```bash
-python scripts/fetch_spot_prices.py
+/data/raw/p2-east-1b.csv
 ```
 
 ### **5. Run the Data Pipeline**
@@ -97,17 +96,9 @@ python scripts/run_pipeline.py
 
 ---
 
-## **Usage**
+# **Model Serving**
 
-### **1. Train Models**
-
-To train the LSTM model:
-
-```bash
-python ml_pipeline/model_training.py
-```
-
-### **2. Serve Predictions**
+### 1 Flask
 
 Start the Flask app to serve predictions:
 
@@ -125,7 +116,7 @@ The API will be available at `http://localhost:5000`.
     - `region`: The AWS region (e.g., `us-east-1`).
   - **Example**:
     ```bash
-    curl "http://localhost:5000/predict?instance_type=m5.large&region=us-east-1"
+    curl -X POST -H "Content-Type: application/json" -d '{"data": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]}' http://localhost:5000/predict
     ```
 
 ---

@@ -69,8 +69,12 @@ jobs:
 
       - name: Deploy to Koyeb
         run: |
-          koyeb deploy flask-app \
-            --image ${{ secrets.DOCKER_HUB_USERNAME }}/flask-app:latest \
-            --env FLASK_APP=app.py \
-            --env FLASK_ENV=production \
-            --region fra
+          koyeb app init "flask-app" \
+            --git "github.com/${{ github.repository }}" \
+            --git-branch "${{ github.ref_name }}" \
+            --git-builder "docker" \
+            --ports "8000:http" \
+            --routes "/:8000" \
+            --env "FLASK_APP=app.py" \
+            --env "FLASK_ENV=production" \
+            --env "PORT=8000"

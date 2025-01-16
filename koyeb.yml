@@ -1,0 +1,15 @@
+app: flask-app
+services:
+  - name: flask-app
+    docker:
+      image: 270596/flask-app:latest
+    env:
+      - name: FLASK_APP
+        value: app.py
+      - name: FLASK_ENV
+        value: production
+    regions:
+      - fra
+    ports:
+      - port: 5000
+        protocol: http
