@@ -12,6 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the Flask app and model files into the container
 COPY ./app /app
+COPY ./ml_pipeline /app/ml_pipeline
 COPY ./models/lstm_model /app/models/lstm_model
 
 # Make port 5000 available to the world outside this container

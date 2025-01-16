@@ -82,6 +82,7 @@ jobs:
             --docker ${{ secrets.DOCKER_HUB_USERNAME }}/flask-app:latest \
             --port 80:http \
             --route /:80 \
+            --instance-type free \
             --env FLASK_APP=app.py \
             --env FLASK_ENV=production \
             --env PORT=80
