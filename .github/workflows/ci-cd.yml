@@ -78,7 +78,7 @@ jobs:
           KOYEB_API_KEY: ${{ secrets.KOYEB_API_KEY }}
         run: |
           koyeb service create ec2p-service \
-            --app ec2p-app \
+            --app ec2p \
             --docker ${{ secrets.DOCKER_HUB_USERNAME }}/ec2p:latest \
             --port 5000:tcp \
             --route /:5000 \
