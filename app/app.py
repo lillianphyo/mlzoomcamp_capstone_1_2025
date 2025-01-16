@@ -3,7 +3,7 @@ import numpy as np
 from tensorflow.keras.models import load_model
 import joblib
 import os
-from ml_pipeline.config import Config
+from config import Config
 
 app = Flask(__name__)
 
