@@ -67,7 +67,15 @@ jobs:
           api_token: ${{ secrets.KOYEB_API_KEY }}
           github_token: ${{ github.token }}
 
+      - name: Create Koyeb Application
+        env:
+          KOYEB_API_KEY: ${{ secrets.KOYEB_API_KEY }}
+        run: |
+          koyeb app create flask-app || echo "Application 'flask-app' already exists."
+
       - name: Deploy to Koyeb
+        env:
+          KOYEB_API_KEY: ${{ secrets.KOYEB_API_KEY }}
         run: |
           koyeb service create flask-service \
             --app flask-app \
