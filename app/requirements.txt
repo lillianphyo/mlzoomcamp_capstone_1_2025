@@ -2,3 +2,4 @@ flask
 tensorflow
 joblib
 python-dotenv
+scikit-learn
