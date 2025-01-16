@@ -80,7 +80,7 @@ jobs:
           koyeb service create ec2p-service \
             --app ec2p-app \
             --docker ${{ secrets.DOCKER_HUB_USERNAME }}/ec2p:latest \
-            --port 5000:5000 \
+            --port 5000:tcp \
             --route /:5000 \
             --instance-type free \
             --env FLASK_APP=app.py \
