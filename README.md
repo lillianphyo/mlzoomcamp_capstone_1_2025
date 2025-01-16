@@ -14,6 +14,10 @@ The project includes:
 
 ---
 
+## Github CI-CD Workflow
+
+![1737014191307](image/README/1737014191307.png)
+
 ## **Features**
 
 - **Data Pipeline**: Automated data collection and preprocessing.
